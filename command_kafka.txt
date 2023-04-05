@@ -1,0 +1,49 @@
+wget https://downloads.apache.org/kafka/3.4.0/kafka_2.12-3.4.0.tgz
+tar -xvf kafka_2.12-3.4.0.tgz
+
+
+-----------------------
+java -version
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+sudo apt install openjdk-8-jdk
+java -version
+cd kafka_2.12-3.4.0
+
+Start Zoo-keeper:
+-------------------------------
+bin/zookeeper-server-start.sh config/zookeeper.properties
+
+
+Start Kafka-server:
+----------------------------------------
+Duplicate the session & enter in a new console --
+export KAFKA_HEAP_OPTS="-Xmx256M -Xms128M"
+cd kafka_2.12-3.4.0
+bin/kafka-server-start.sh config/server.properties
+
+It is pointing to private server , change server.properties so that it can run in public IP
+
+To do this , you can follow any of the 2 approaches shared below --
+Do a "sudo nano config/server.properties" - change ADVERTISED_LISTENERS to public ip of the EC2 instance
+
+Open the port on the security group:
+-----------------------------
+Check the security group of the EC2 instance and open the port 9092 on the inbound rules for the Kafka server to run.
+
+
+Create the topic:
+-----------------------------
+Duplicate the session & enter in a new console --
+cd kafka_2.12-3.4.0
+bin/kafka-topics.sh --create --topic stock-analysis --bootstrap-server {Put the Public IP of your EC2 Instance:9092} --replication-factor 1 --partitions 1
+
+Start Producer:
+--------------------------
+bin/kafka-console-producer.sh --topic stock-analysis --bootstrap-server {Put the Public IP of your EC2 Instance:9092}
+
+Start Consumer:
+-------------------------
+Duplicate the session & enter in a new console --
+cd kafka_2.12-3.4.0
+bin/kafka-console-consumer.sh --topic stock-analysis --bootstrap-server {Put the Public IP of your EC2 Instance:9092}
